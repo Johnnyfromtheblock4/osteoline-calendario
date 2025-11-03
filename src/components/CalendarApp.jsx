@@ -58,7 +58,7 @@ const CalendarApp = () => {
         <div className="events">
           <div className="event-popup">
             <div className="time-input">
-              <div className="event-pop-up-time">Ora</div>
+              <div className="event-popup-time">ORA</div>
               <input
                 type="number"
                 name="hours"
@@ -75,8 +75,8 @@ const CalendarApp = () => {
               />
             </div>
             <textarea placeholder="Descrizione Evento (Max 60 caratteri)"></textarea>
-            <button className="event-pop-up-btn">Inserisci Evento</button>
-            <button className="close-event-pop-up">
+            <button className="event-popup-btn">Inserisci Evento</button>
+            <button className="close-event-popup">
               <i className="bx bx-x"></i>
             </button>
           </div>
