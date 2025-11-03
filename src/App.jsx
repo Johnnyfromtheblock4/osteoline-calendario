@@ -3,9 +3,9 @@ import "./components/CalendarApp";
 
 const App = () => {
   return (
-    <>
+    <div className="container">
       <CalendarApp />
-    </>
+    </div>
   );
 };
 
