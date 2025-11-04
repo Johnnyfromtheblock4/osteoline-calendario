@@ -121,6 +121,13 @@ const CalendarApp = () => {
     setShowEventPopup(true);
   };
 
+  // funzione per eliminare vento
+  const handleDeleteEvent = (eventId) => {
+    const updatedEvents = events.filter((event) => event.id !== eventId);
+
+    setEvents(updatedEvents);
+  };
+
   return (
     <>
       <div className="calendar-app">
@@ -222,7 +229,10 @@ const CalendarApp = () => {
                   className="bx bxs-edit-alt"
                   onClick={() => handleEditEvent(event)}
                 ></i>
-                <i class="fa-solid fa-square-xmark"></i>
+                <i
+                  class="fa-solid fa-square-xmark"
+                  onClick={() => handleDeleteEvent(event.id)}
+                ></i>
               </div>
             </div>
           ))}
