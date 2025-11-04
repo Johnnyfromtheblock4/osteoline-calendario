@@ -142,14 +142,17 @@
   height: 4rem;
   text-align: center;
   font: clamp(1.2rem, 1.2cqi, 1.6rem);
+  color: #fff;
 }
 
 /* elimina le arrow di default */
-.time.input
-  input[type="number"]::-webkit-outer-spin-button
-  .time.input
-  input[type="number"]::-webkit-inner-spin-button {
-  appearance: none;
+.time-input input[type="number"]::-webkit-outer-spin-button,
+.time-input input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.time-input input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .event-popup textarea {
