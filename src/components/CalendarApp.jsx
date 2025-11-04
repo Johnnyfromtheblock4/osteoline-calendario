@@ -21,7 +21,8 @@ const CalendarApp = () => {
 
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
-
+  const [selectedDate, setSelectedDate] = useState(currentDate);
+  const [showEventPopup, setShowEventPopup] = useState(false);
 
   // funzione che determina il numero di giorni in un mese
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -38,6 +39,17 @@ const CalendarApp = () => {
     setCurrentYear((prevYear) =>
       currentMonth === 0 ? prevYear - 1 : prevYear
     );
+  };
+
+  // funzione per selezionare il giorno dell'evento
+  const handleDayClick = (day) => {
+    const clickedDate = new Date(currentYear, currentMonth, day);
+    const today = new Date();
+
+    if (clickedDate >= today) {
+      setSelectedDate(clickedDate);
+      setShowEventPopup(true);
+    }
   };
 
   // funzione per calcolo del mese succesivo
@@ -80,6 +92,7 @@ const CalendarApp = () => {
                     ? "current-day"
                     : ""
                 }
+                onClick={() => handleDayClick(day + 1)}
               >
                 {day + 1}
               </span>
@@ -87,30 +100,33 @@ const CalendarApp = () => {
           </div>
         </div>
         <div className="events">
-          <div className="event-popup">
-            <div className="time-input">
-              <div className="event-popup-time">ORA</div>
-              <input
-                type="number"
-                name="hours"
-                min={0}
-                max={24}
-                className="hours"
-              />
-              <input
-                type="number"
-                name="minutes"
-                min={0}
-                max={60}
-                className="minutes"
-              />
+          {showEventPopup && (
+            <div className="event-popup">
+              <div className="time-input">
+                <div className="event-popup-time">ORA</div>
+                <input
+                  type="number"
+                  name="hours"
+                  min={0}
+                  max={24}
+                  className="hours"
+                />
+                <input
+                  type="number"
+                  name="minutes"
+                  min={0}
+                  max={60}
+                  className="minutes"
+                />
+              </div>
+              <textarea placeholder="Descrizione Evento (Max 60 caratteri)"></textarea>
+              <button className="event-popup-btn">Inserisci Evento</button>
+              <button className="close-event-popup">
+                <i className="bx bx-x"></i>
+              </button>
             </div>
-            <textarea placeholder="Descrizione Evento (Max 60 caratteri)"></textarea>
-            <button className="event-popup-btn">Inserisci Evento</button>
-            <button className="close-event-popup">
-              <i className="bx bx-x"></i>
-            </button>
-          </div>
+          )}
+
           <div className="event">
             <div className="event-date-wrapper">
               <div className="event-date">14 Novembre, 2025</div>
