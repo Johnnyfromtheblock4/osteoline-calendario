@@ -21,10 +21,14 @@ const CalendarApp = () => {
 
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
+
+
   // funzione che determina il numero di giorni in un mese
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
   // funzione che determina il primo giorno del mese e restituisce in giorno della settimana
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+
   // variabile che corregge per iniziare da Lun (calendario americano)
   const firstDayIndex = (firstDayOfMonth + 6) % 7;
 
@@ -67,7 +71,18 @@ const CalendarApp = () => {
               <span key={`empty-${index}`} />
             ))}
             {[...Array(daysInMonth).keys()].map((day) => (
-              <span key={day + 1}>{day + 1}</span>
+              <span
+                key={day + 1}
+                className={
+                  day + 1 === currentDate.getDate() &&
+                  currentMonth === currentDate.getMonth() &&
+                  currentYear === currentDate.getFullYear()
+                    ? "current-day"
+                    : ""
+                }
+              >
+                {day + 1}
+              </span>
             ))}
           </div>
         </div>
@@ -104,7 +119,7 @@ const CalendarApp = () => {
             <div className="event-text">Appuntamento Visconti</div>
             <div className="event-buttons">
               <i className="bx bxs-edit-alt"></i>
-              <i className="bx bxs-message-alt-x"></i>
+              <i class="fa-solid fa-square-xmark"></i>
             </div>
           </div>
         </div>
