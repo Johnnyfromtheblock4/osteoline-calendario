@@ -128,6 +128,16 @@ const CalendarApp = () => {
     setEvents(updatedEvents);
   };
 
+  // funzione per cambio di orari
+  const handleTimeChange = (e) => {
+    const [name, value] = e.target;
+
+    setEventTime((prevTime) => ({
+      ...prevTime,
+      [name]: value.padStart(2, "0"),
+    }));
+  };
+
   return (
     <>
       <div className="calendar-app">
@@ -179,9 +189,7 @@ const CalendarApp = () => {
                   max={24}
                   className="hours"
                   value={eventTime.hours}
-                  onChange={(e) =>
-                    setEventTime({ ...eventTime, hours: e.target.value })
-                  }
+                  onChange={handleTimeChange}
                 />
                 <input
                   type="number"
@@ -190,9 +198,7 @@ const CalendarApp = () => {
                   max={60}
                   className="minutes"
                   value={eventTime.minutes}
-                  onChange={(e) =>
-                    setEventTime({ ...eventTime, minutes: e.target.value })
-                  }
+                  onChange={handleTimeChange}
                 />
               </div>
               <textarea
