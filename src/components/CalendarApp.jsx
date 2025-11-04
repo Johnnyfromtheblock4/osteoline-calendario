@@ -41,22 +41,31 @@ const CalendarApp = () => {
     );
   };
 
-  // funzione per selezionare il giorno dell'evento
-  const handleDayClick = (day) => {
-    const clickedDate = new Date(currentYear, currentMonth, day);
-    const today = new Date();
-
-    if (clickedDate >= today) {
-      setSelectedDate(clickedDate);
-      setShowEventPopup(true);
-    }
-  };
-
   // funzione per calcolo del mese succesivo
   const nextMonth = () => {
     setCurrentMonth((prevMonth) => (prevMonth === 11 ? 0 : prevMonth + 1));
     setCurrentYear((prevYear) =>
       currentMonth === 11 ? prevYear + 1 : prevYear
+    );
+  };
+
+  // funzione per selezionare il giorno dell'evento
+  const handleDayClick = (day) => {
+    const clickedDate = new Date(currentYear, currentMonth, day);
+    const today = new Date();
+
+    if (clickedDate >= today || isSameDay(clickedDate, today)) {
+      setSelectedDate(clickedDate);
+      setShowEventPopup(true);
+    }
+  };
+
+  // funzione per chiamare il giorno corrente
+  const isSameDay = (date1, date2) => {
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
     );
   };
 
@@ -121,7 +130,10 @@ const CalendarApp = () => {
               </div>
               <textarea placeholder="Descrizione Evento (Max 60 caratteri)"></textarea>
               <button className="event-popup-btn">Inserisci Evento</button>
-              <button className="close-event-popup">
+              <button
+                className="close-event-popup"
+                onClick={() => setShowEventPopup(false)}
+              >
                 <i className="bx bx-x"></i>
               </button>
             </div>
