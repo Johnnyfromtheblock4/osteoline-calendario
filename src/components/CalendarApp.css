@@ -274,6 +274,7 @@
 }
 
 /* RESPONSIVE  */
+/* TABLET */
 @media (max-width: 850px) {
   .calendar-app {
     flex-direction: column;
@@ -340,5 +341,32 @@
   }
   .event-text {
     font-size: clamp(1rem, 2.5cqi, 1.4rem);
+  }
+}
+
+/* SMARTPHONE */
+@media (max-width: 500px) {
+  .calendar-app {
+    aspect-ratio: 10 / 9;
+  }
+
+  .calendar {
+    width: 100%;
+  }
+
+  .event-popup {
+    top: 26%;
+    width: 80%;
+  }
+
+  .events {
+    width: 100%;
+  }
+}
+
+/* SMARTPHONE MINI */
+@media (max-width: 375px) {
+  .calendar-app {
+    aspect-ratio: 3 / 2;
   }
 }

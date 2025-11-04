@@ -21,3 +21,9 @@ html {
   place-items: center;
   overflow: hidden;
 }
+
+@media (max-width: 500px) {
+  html {
+    font-size: 55%;
+  }
+}
