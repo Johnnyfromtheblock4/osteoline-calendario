@@ -99,7 +99,7 @@ const CalendarApp = () => {
       updatedEvents.push(newEvent);
     }
 
-    updatedEvents.sort((a, b) => newDate(a.date) - new Date(b.date));
+    updatedEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // crea un nuovo array composto da events e newEvent
     setEvents(updatedEvents);
