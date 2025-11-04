@@ -26,6 +26,7 @@ const CalendarApp = () => {
   const [events, setEvents] = useState([]);
   const [eventTime, setEventTime] = useState({ hours: "00", minutes: "00" });
   const [eventText, setEventText] = useState("");
+  const [editingEvent, setEditingEvent] = useState(null);
 
   // funzione che determina il numero di giorni in un mese
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -62,6 +63,7 @@ const CalendarApp = () => {
       setShowEventPopup(true);
       setEventTime({ hours: "00", minutes: "00" });
       setEventText("");
+      setEditingEvent(null);
     }
   };
 
@@ -77,6 +79,7 @@ const CalendarApp = () => {
   // funzione per aggiungere evento (padStart aggiunge un elemento all'oggetto con 2 parametri e se è uno solo ci aggiunge davanti lo 0)
   const handleEventSubmit = () => {
     const newEvent = {
+      id: editingEvent ? editingEvent.id : Date.now(),
       date: selectedDate,
       time: `${eventTime.hours.padStart(2, "0")}:${eventTime.hours.padStart(
         2,
@@ -85,11 +88,37 @@ const CalendarApp = () => {
       text: eventText,
     };
 
+    // variabile che crea copia dell'evento per la modifica
+    let updatedEvents = [...events];
+
+    if (editingEvent) {
+      updatedEvents = updatedEvents.map((event) =>
+        event.id === editingEvent.id ? newEvent : event
+      );
+    } else {
+      updatedEvents.push(newEvent);
+    }
+
+    updatedEvents.sort((a, b) => newDate(a.date) - new Date(b.date));
+
     // crea un nuovo array composto da events e newEvent
-    setEvents([...events, newEvent]);
+    setEvents(updatedEvents);
     setEventTime({ hours: "00", minutes: "00" });
     setEventText("");
     setShowEventPopup(false); // per chiudere l'evento quando inserito
+    setEditingEvent(null);
+  };
+
+  // funzione per l'editing
+  const handleEditEvent = (event) => {
+    setSelectedDate(new Date(event.date));
+    setEventTime({
+      hours: event.time.split(":")[0],
+      minutes: event.time.split(":")[1],
+    });
+    setEventText(event.text);
+    setEditingEvent(event);
+    setShowEventPopup(true);
   };
 
   return (
@@ -169,7 +198,7 @@ const CalendarApp = () => {
                 }}
               ></textarea>
               <button className="event-popup-btn" onClick={handleEventSubmit}>
-                Inserisci Evento
+                {editingEvent ? "Aggiorna Evento" : "Aggiungi Evento"}
               </button>
               <button
                 className="close-event-popup"
@@ -189,7 +218,10 @@ const CalendarApp = () => {
               </div>
               <div className="event-text">{event.text}</div>
               <div className="event-buttons">
-                <i className="bx bxs-edit-alt"></i>
+                <i
+                  className="bx bxs-edit-alt"
+                  onClick={() => handleEditEvent(event)}
+                ></i>
                 <i class="fa-solid fa-square-xmark"></i>
               </div>
             </div>
