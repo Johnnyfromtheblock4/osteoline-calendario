@@ -19,4 +19,5 @@ html {
   color: white;
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
