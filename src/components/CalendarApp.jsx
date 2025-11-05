@@ -275,7 +275,7 @@ const CalendarApp = () => {
     // blocca eliminazione se giorno passato o evento entro 24 ore
     if (isPastDate(eventToDelete.date) || isEventLocked(eventToDelete)) {
       showCustomAlert(
-        "Non puoi cancellare un evento entro 24 ore o di un giorno passato."
+        "Non puoi cancellare un evento entro 24 ore dallo stesso"
       );
       return;
     }

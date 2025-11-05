@@ -11,3 +11,4 @@ FUNZIONI DA IMPLEMENTARE:
 - Calendario che faccia un conteggio orario ad ogni mese per utente
 - Etichetta utente (quando prendo appuntamento)
 - Cancellazione calendario con esportazione dati
+- Stili

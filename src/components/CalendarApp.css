@@ -89,7 +89,7 @@
 .current-day {
   background-color: #ef9011;
   border-radius: 50%;
-  box-shadow: 0 0 1.5rem 1rem rgba(239, 144, 17, 0.3);
+
 }
 
 .events {
@@ -295,7 +295,7 @@
 .selected-day {
   border: 1px solid red;
   border-radius: 50%;
-  box-shadow: 0 0 1.5rem 1rem rgba(255, 0, 0, 0.3);
+
   color: white;
 }
 
