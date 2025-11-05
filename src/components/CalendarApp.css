@@ -273,6 +273,24 @@
   margin-right: 2rem;
 }
 
+.selected-day-title {
+  margin-bottom: 1rem;
+  font-size: 2.2rem;
+}
+
+.selected-day {
+  border: 1px solid red;
+  border-radius: 50%;
+  box-shadow: 0 0 1.5rem 1rem rgba(255, 0, 0, 0.3);
+  color: white;
+}
+
+.default-message {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
 /* RESPONSIVE  */
 /* TABLET */
 @media (max-width: 850px) {

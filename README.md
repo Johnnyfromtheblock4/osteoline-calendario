@@ -4,7 +4,6 @@ Calendario personalizzato per Osteoline.
 
 FUNZIONI:
 
-- Timetree
 - Calendario che faccia un conteggio orario ad ogni mese per utente
 - Non permette di cancellare appuntamenti se mancano 24 ore.
 - Notifiche badge
