@@ -117,6 +117,8 @@
   justify-content: center;
   align-items: center;
   row-gap: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .time-input {
@@ -132,7 +134,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 1.5rem 1rem rgba(0, 163, 255, 0.2);
   letter-spacing: 0.1rem;
   padding-left: 1rem;
   padding-right: 1rem;
@@ -191,7 +192,7 @@
   font-size: clamp(1.2rem, 1.2cqi, 1.9rem);
   letter-spacing: 0.1rem;
   border: none;
-  box-shadow: 0 0 1.2rem 1rem rgba(239, 144, 17, 0.2);
+  border-radius: 0.5rem;
   cursor: pointer;
 }
 

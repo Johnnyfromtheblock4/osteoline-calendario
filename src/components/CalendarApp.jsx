@@ -25,7 +25,17 @@ const CalendarApp = () => {
   const [showEventPopup, setShowEventPopup] = useState(false);
   const [showDayDetails, setShowDayDetails] = useState(false);
   const [events, setEvents] = useState([]);
-  const [eventTime, setEventTime] = useState({ hours: "00", minutes: "00" });
+
+  // stati per orari di inizio e fine
+  const [eventStartTime, setEventStartTime] = useState({
+    hours: "00",
+    minutes: "00",
+  });
+  const [eventEndTime, setEventEndTime] = useState({
+    hours: "00",
+    minutes: "00",
+  });
+
   const [eventText, setEventText] = useState("");
   const [eventRoom, setEventRoom] = useState(""); // variabile per la stanza
   const [isAllDay, setIsAllDay] = useState(false); // stato per switch "Tutto il giorno"
@@ -78,11 +88,29 @@ const CalendarApp = () => {
     }
   };
 
+  // funzione per mostrare il popup personalizzato
+  const showCustomAlert = (message) => {
+    setAlertMessage(message);
+  };
+
   // funzione per aggiungere evento (padStart aggiunge un elemento all'oggetto con 2 parametri e se è uno solo ci aggiunge davanti lo 0)
   const handleEventSubmit = () => {
     // Se NON è "tutto il giorno", la stanza è obbligatoria
     if (!isAllDay && !eventRoom) {
       showCustomAlert("Seleziona una stanza prima di salvare l'evento.");
+      return;
+    }
+
+    // Validazione: ora fine deve essere dopo ora inizio
+    if (
+      !isAllDay &&
+      (parseInt(eventEndTime.hours) < parseInt(eventStartTime.hours) ||
+        (parseInt(eventEndTime.hours) === parseInt(eventStartTime.hours) &&
+          parseInt(eventEndTime.minutes) <= parseInt(eventStartTime.minutes)))
+    ) {
+      showCustomAlert(
+        "L'orario di fine deve essere successivo a quello di inizio."
+      );
       return;
     }
 
@@ -107,10 +135,16 @@ const CalendarApp = () => {
       date: selectedDate,
       time: isAllDay
         ? "Tutto il giorno"
-        : `${eventTime.hours.padStart(2, "0")}:${eventTime.minutes.padStart(
+        : `${eventStartTime.hours.padStart(
             2,
             "0"
-          )}`,
+          )}:${eventStartTime.minutes.padStart(
+            2,
+            "0"
+          )} - ${eventEndTime.hours.padStart(
+            2,
+            "0"
+          )}:${eventEndTime.minutes.padStart(2, "0")}`,
       text: eventText,
       room: eventRoom, // aggiunto campo stanza
       isAllDay, // nuova proprietà
@@ -131,7 +165,8 @@ const CalendarApp = () => {
 
     // crea un nuovo array composto da events e newEvent
     setEvents(updatedEvents);
-    setEventTime({ hours: "00", minutes: "00" });
+    setEventStartTime({ hours: "00", minutes: "00" });
+    setEventEndTime({ hours: "00", minutes: "00" });
     setEventText("");
     setEventRoom("");
     setIsAllDay(false);
@@ -142,16 +177,23 @@ const CalendarApp = () => {
   // funzione per l'editing
   const handleEditEvent = (event) => {
     setSelectedDate(new Date(event.date));
-    setEventTime({
-      hours:
-        event.time.split(":")[0] === "Tutto il giorno"
-          ? "00"
-          : event.time.split(":")[0],
-      minutes:
-        event.time.split(":")[1] === undefined
-          ? "00"
-          : event.time.split(":")[1],
-    });
+
+    // estrai orari di inizio/fine se esistono
+    if (event.time.includes(" - ")) {
+      const [start, end] = event.time.split(" - ");
+      setEventStartTime({
+        hours: start.split(":")[0],
+        minutes: start.split(":")[1],
+      });
+      setEventEndTime({
+        hours: end.split(":")[0],
+        minutes: end.split(":")[1],
+      });
+    } else {
+      setEventStartTime({ hours: "00", minutes: "00" });
+      setEventEndTime({ hours: "00", minutes: "00" });
+    }
+
     setEventText(event.text);
     setEventRoom(event.room || "");
     setIsAllDay(event.isAllDay || false);
@@ -165,24 +207,10 @@ const CalendarApp = () => {
     setEvents(updatedEvents);
   };
 
-  // funzione per cambio di orari
-  const handleTimeChange = (e) => {
-    const { name, value } = e.target;
-    setEventTime((prevTime) => ({
-      ...prevTime,
-      [name]: value.padStart(2, "0"),
-    }));
-  };
-
   // filtra eventi per giorno selezionato
   const eventsForSelectedDay = events.filter((event) =>
     selectedDate ? isSameDay(new Date(event.date), selectedDate) : false
   );
-
-  // funzione per mostrare il popup personalizzato
-  const showCustomAlert = (message) => {
-    setAlertMessage(message);
-  };
 
   return (
     <>
@@ -248,8 +276,12 @@ const CalendarApp = () => {
                 eventsForSelectedDay.map((event) => (
                   <div className="event" key={event.id}>
                     <div className="event-date-wrapper">
-                      <div className="event-time">{event.time}</div>
-                      <div className="event-room">{event.room}</div>
+                      <div className="event-time">
+                        {event.isAllDay ? "Tutto il giorno" : event.time}
+                      </div>
+                      {event.room && (
+                        <div className="event-room">{event.room}</div>
+                      )}
                     </div>
                     <div className="event-text">{event.text}</div>
                     <div className="event-buttons">
@@ -272,7 +304,6 @@ const CalendarApp = () => {
               <button
                 className="event-popup-btn"
                 onClick={() => {
-                  // verifica se c'è già un evento "tutto il giorno" in questo giorno
                   const hasAllDayEvent = eventsForSelectedDay.some(
                     (e) => e.isAllDay
                   );
@@ -286,7 +317,8 @@ const CalendarApp = () => {
 
                   setShowEventPopup(true);
                   setEditingEvent(null);
-                  setEventTime({ hours: "00", minutes: "00" });
+                  setEventStartTime({ hours: "00", minutes: "00" });
+                  setEventEndTime({ hours: "00", minutes: "00" });
                   setEventText("");
                   setEventRoom("");
                   setIsAllDay(false);
@@ -300,27 +332,69 @@ const CalendarApp = () => {
           {/* Popup per aggiungere/modificare evento */}
           {showEventPopup && (
             <div className="event-popup">
+              {/* Input ORA INIZIO */}
               <div className="time-input">
-                <div className="event-popup-time">ORA</div>
+                <div className="event-popup-time">DA</div>
                 <input
                   type="number"
-                  name="hours"
                   min={0}
                   max={24}
                   className="hours"
-                  value={eventTime.hours}
-                  onChange={handleTimeChange}
-                  disabled={isAllDay} // disabilita se tutto il giorno
+                  value={eventStartTime.hours}
+                  onChange={(e) =>
+                    setEventStartTime((prev) => ({
+                      ...prev,
+                      hours: e.target.value.padStart(2, "0"),
+                    }))
+                  }
+                  disabled={isAllDay}
                 />
                 <input
                   type="number"
-                  name="minutes"
                   min={0}
                   max={60}
                   className="minutes"
-                  value={eventTime.minutes}
-                  onChange={handleTimeChange}
-                  disabled={isAllDay} // disabilita se tutto il giorno
+                  value={eventStartTime.minutes}
+                  onChange={(e) =>
+                    setEventStartTime((prev) => ({
+                      ...prev,
+                      minutes: e.target.value.padStart(2, "0"),
+                    }))
+                  }
+                  disabled={isAllDay}
+                />
+              </div>
+
+              {/* Input ORA FINE */}
+              <div className="time-input">
+                <div className="event-popup-time">A</div>
+                <input
+                  type="number"
+                  min={0}
+                  max={24}
+                  className="hours"
+                  value={eventEndTime.hours}
+                  onChange={(e) =>
+                    setEventEndTime((prev) => ({
+                      ...prev,
+                      hours: e.target.value.padStart(2, "0"),
+                    }))
+                  }
+                  disabled={isAllDay}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  max={60}
+                  className="minutes"
+                  value={eventEndTime.minutes}
+                  onChange={(e) =>
+                    setEventEndTime((prev) => ({
+                      ...prev,
+                      minutes: e.target.value.padStart(2, "0"),
+                    }))
+                  }
+                  disabled={isAllDay}
                 />
               </div>
 
@@ -330,7 +404,11 @@ const CalendarApp = () => {
                   <input
                     type="checkbox"
                     checked={isAllDay}
-                    onChange={() => setIsAllDay((prev) => !prev)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setIsAllDay(checked);
+                      if (checked) setEventRoom(""); // resetta stanza se tutto il giorno
+                    }}
                   />
                   <span className="slider round"></span>
                 </label>
@@ -372,6 +450,7 @@ const CalendarApp = () => {
             </div>
           )}
         </div>
+
         {/* Popup personalizzato */}
         {alertMessage && (
           <div className="custom-alert-overlay">
