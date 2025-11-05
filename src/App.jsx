@@ -3,7 +3,7 @@ import "./components/CalendarApp.css";
 
 const App = () => {
   return (
-    <div className="container">
+    <div className="container-fluid">
       <CalendarApp />
     </div>
   );

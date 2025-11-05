@@ -89,7 +89,6 @@
 .current-day {
   background-color: #ef9011;
   border-radius: 50%;
-
 }
 
 .events {
@@ -409,7 +408,11 @@ input:checked + .slider:before {
   font-size: 1.8rem;
 }
 
-/* RESPONSIVE  */
+.menu {
+  display: flex;
+}
+
+/* ------ RESPONSIVE ------ */
 /* TABLET */
 @media (max-width: 850px) {
   .calendar-app {
