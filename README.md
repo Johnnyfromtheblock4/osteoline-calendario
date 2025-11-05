@@ -4,7 +4,6 @@ Calendario personalizzato per Osteoline.
 
 FUNZIONI:
 
-- Se evento esiste gia per quella stanza a quello'ora pop up "Stanza già prenotata"
 - Calendario che faccia un conteggio orario ad ogni mese per utente
 - Notifiche badge
 - Etichetta utente (quando prendo appuntamento)

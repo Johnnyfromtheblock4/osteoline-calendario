@@ -95,11 +95,13 @@ const CalendarApp = () => {
 
   // funzione per aggiungere evento
   const handleEventSubmit = () => {
+    // se non è tutto il giorno e non è stata selezionata una stanza
     if (!isAllDay && !eventRoom) {
       showCustomAlert("Seleziona una stanza prima di salvare l'evento.");
       return;
     }
 
+    // controllo validità orario di fine > orario di inizio
     if (
       !isAllDay &&
       (parseInt(eventEndTime.hours) < parseInt(eventStartTime.hours) ||
@@ -112,6 +114,45 @@ const CalendarApp = () => {
       return;
     }
 
+    // controllo sovrapposizione di orari nella stessa stanza
+    if (!isAllDay && eventRoom) {
+      const overlapping = events.some((e) => {
+        if (
+          e.room === eventRoom &&
+          isSameDay(e.date, selectedDate) &&
+          e.id !== (editingEvent?.id || null)
+        ) {
+          if (e.isAllDay) return true;
+
+          const [start, end] = e.time.split(" - ");
+          const [startH, startM] = start.split(":").map(Number);
+          const [endH, endM] = end.split(":").map(Number);
+
+          const startMinutesExisting = startH * 60 + startM;
+          const endMinutesExisting = endH * 60 + endM;
+
+          const startMinutesNew =
+            parseInt(eventStartTime.hours) * 60 +
+            parseInt(eventStartTime.minutes);
+          const endMinutesNew =
+            parseInt(eventEndTime.hours) * 60 + parseInt(eventEndTime.minutes);
+
+          // verifica se gli orari si sovrappongono
+          return (
+            startMinutesNew < endMinutesExisting &&
+            endMinutesNew > startMinutesExisting
+          );
+        }
+        return false;
+      });
+
+      if (overlapping) {
+        showCustomAlert("Stanza già prenotata");
+        return;
+      }
+    }
+
+    // controllo eventi "tutto il giorno" duplicati
     if (
       isAllDay &&
       events.some(
@@ -127,6 +168,7 @@ const CalendarApp = () => {
       return;
     }
 
+    // creazione nuovo evento
     const newEvent = {
       id: editingEvent ? editingEvent.id : Date.now(),
       date: selectedDate,
@@ -147,6 +189,7 @@ const CalendarApp = () => {
       isAllDay,
     };
 
+    // aggiorna lista eventi
     let updatedEvents = [...events];
     if (editingEvent) {
       updatedEvents = updatedEvents.map((event) =>
@@ -158,6 +201,7 @@ const CalendarApp = () => {
 
     updatedEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
+    // reset stati e chiudi popup
     setEvents(updatedEvents);
     setEventStartTime({ hours: "00", minutes: "00" });
     setEventEndTime({ hours: "00", minutes: "00" });
