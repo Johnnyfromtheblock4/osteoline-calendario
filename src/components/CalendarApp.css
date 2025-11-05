@@ -217,13 +217,25 @@
 .event {
   width: 100%;
   height: 7rem;
-  background-color: #00a3ff;
   padding: 1.5rem 0;
   border-radius: 1rem;
   display: flex;
   align-items: center;
   margin-bottom: 2rem;
   position: relative;
+}
+
+/* COLORI DIVERSI PER STANZA */
+.event.fede {
+  background-color: #00a3ff;
+}
+
+.event.trattamenti {
+  background-color: #992bff;
+}
+
+.event.palestra {
+  background-color: #0ba84a;
 }
 
 .event-date-wrapper {
@@ -263,20 +275,21 @@
 }
 
 .bxs-edit-alt {
-  color: greenyellow;
+  color: black;
   font-weight: 900;
   margin-right: 1rem;
 }
 
 .fa-square-xmark {
-  color: red;
+  color: white;
   font-weight: 900;
   margin-right: 2rem;
 }
 
 .selected-day-title {
   margin-bottom: 1rem;
-  font-size: 2.2rem;
+  font-size: 2.8rem;
+  font-weight: bolder;
 }
 
 .selected-day {
@@ -289,7 +302,8 @@
 .default-message {
   margin-top: 1rem;
   margin-bottom: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  color: #ccc;
 }
 
 .all-day-toggle {
@@ -389,6 +403,10 @@ input:checked + .slider:before {
 
 .custom-alert-close:hover {
   background-color: #ffad33;
+}
+
+.room-title {
+  font-size: 1.8rem;
 }
 
 /* RESPONSIVE  */

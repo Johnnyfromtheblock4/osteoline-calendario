@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const CalendarApp = () => {
   const daysOfWeek = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
@@ -37,10 +37,16 @@ const CalendarApp = () => {
   });
 
   const [eventText, setEventText] = useState("");
-  const [eventRoom, setEventRoom] = useState(""); // variabile per la stanza
-  const [isAllDay, setIsAllDay] = useState(false); // stato per switch "Tutto il giorno"
+  const [eventRoom, setEventRoom] = useState("");
+  const [isAllDay, setIsAllDay] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [alertMessage, setAlertMessage] = useState(""); // stato per popup
+  const [alertMessage, setAlertMessage] = useState("");
+
+  // ✅ Mostra automaticamente gli appuntamenti del giorno corrente al primo caricamento
+  useEffect(() => {
+    setSelectedDate(currentDate);
+    setShowDayDetails(true);
+  }, []);
 
   // funzione che determina il numero di giorni in un mese
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -59,7 +65,7 @@ const CalendarApp = () => {
     );
   };
 
-  // funzione per calcolo del mese succesivo
+  // funzione per calcolo del mese successivo
   const nextMonth = () => {
     setCurrentMonth((prevMonth) => (prevMonth === 11 ? 0 : prevMonth + 1));
     setCurrentYear((prevYear) =>
@@ -67,20 +73,16 @@ const CalendarApp = () => {
     );
   };
 
-  // funzione per chiamare evento per il giorno corrente
-  const isSameDay = (date1, date2) => {
-    return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
-    );
-  };
+  // funzione per confrontare due date (senza orario)
+  const isSameDay = (date1, date2) =>
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
 
   // funzione per selezionare il giorno dell'evento
   const handleDayClick = (day) => {
     const clickedDate = new Date(currentYear, currentMonth, day);
     const today = new Date();
-
     if (clickedDate >= today || isSameDay(clickedDate, today)) {
       setSelectedDate(clickedDate);
       setShowDayDetails(true);
@@ -89,19 +91,15 @@ const CalendarApp = () => {
   };
 
   // funzione per mostrare il popup personalizzato
-  const showCustomAlert = (message) => {
-    setAlertMessage(message);
-  };
+  const showCustomAlert = (message) => setAlertMessage(message);
 
-  // funzione per aggiungere evento (padStart aggiunge un elemento all'oggetto con 2 parametri e se è uno solo ci aggiunge davanti lo 0)
+  // funzione per aggiungere evento
   const handleEventSubmit = () => {
-    // Se NON è "tutto il giorno", la stanza è obbligatoria
     if (!isAllDay && !eventRoom) {
       showCustomAlert("Seleziona una stanza prima di salvare l'evento.");
       return;
     }
 
-    // Validazione: ora fine deve essere dopo ora inizio
     if (
       !isAllDay &&
       (parseInt(eventEndTime.hours) < parseInt(eventStartTime.hours) ||
@@ -114,7 +112,6 @@ const CalendarApp = () => {
       return;
     }
 
-    // se è tutto il giorno, impedisci di creare più eventi nello stesso giorno
     if (
       isAllDay &&
       events.some(
@@ -146,13 +143,11 @@ const CalendarApp = () => {
             "0"
           )}:${eventEndTime.minutes.padStart(2, "0")}`,
       text: eventText,
-      room: eventRoom, // aggiunto campo stanza
-      isAllDay, // nuova proprietà
+      room: eventRoom,
+      isAllDay,
     };
 
-    // variabile che crea copia dell'evento per la modifica
     let updatedEvents = [...events];
-
     if (editingEvent) {
       updatedEvents = updatedEvents.map((event) =>
         event.id === editingEvent.id ? newEvent : event
@@ -163,22 +158,19 @@ const CalendarApp = () => {
 
     updatedEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    // crea un nuovo array composto da events e newEvent
     setEvents(updatedEvents);
     setEventStartTime({ hours: "00", minutes: "00" });
     setEventEndTime({ hours: "00", minutes: "00" });
     setEventText("");
     setEventRoom("");
     setIsAllDay(false);
-    setShowEventPopup(false); // per chiudere l'evento quando inserito
+    setShowEventPopup(false);
     setEditingEvent(null);
   };
 
-  // funzione per l'editing
+  // funzione per edit evento
   const handleEditEvent = (event) => {
     setSelectedDate(new Date(event.date));
-
-    // estrai orari di inizio/fine se esistono
     if (event.time.includes(" - ")) {
       const [start, end] = event.time.split(" - ");
       setEventStartTime({
@@ -193,7 +185,6 @@ const CalendarApp = () => {
       setEventStartTime({ hours: "00", minutes: "00" });
       setEventEndTime({ hours: "00", minutes: "00" });
     }
-
     setEventText(event.text);
     setEventRoom(event.room || "");
     setIsAllDay(event.isAllDay || false);
@@ -202,15 +193,28 @@ const CalendarApp = () => {
   };
 
   // funzione per eliminare evento
-  const handleDeleteEvent = (eventId) => {
-    const updatedEvents = events.filter((event) => event.id !== eventId);
-    setEvents(updatedEvents);
-  };
+  const handleDeleteEvent = (eventId) =>
+    setEvents(events.filter((event) => event.id !== eventId));
 
-  // filtra eventi per giorno selezionato
+  // eventi del giorno selezionato
   const eventsForSelectedDay = events.filter((event) =>
     selectedDate ? isSameDay(new Date(event.date), selectedDate) : false
   );
+
+  // ordina eventi per stanza e ora
+  const rooms = ["Stanza Fede", "Stanza trattamenti", "Palestra"];
+  const getRoomColor = (room) => {
+    switch (room) {
+      case "Stanza Fede":
+        return "#00a3ff";
+      case "Stanza trattamenti":
+        return "#992BFF";
+      case "Palestra":
+        return "#0BA84A";
+      default:
+        return "#555";
+    }
+  };
 
   return (
     <>
@@ -225,11 +229,13 @@ const CalendarApp = () => {
               <i className="bx bx-chevron-right" onClick={nextMonth}></i>
             </div>
           </div>
+
           <div className="weekdays">
             {daysOfWeek.map((day) => (
               <span key={day}>{day}</span>
             ))}
           </div>
+
           <div className="days">
             {[...Array(firstDayIndex).keys()].map((_, index) => (
               <span key={`empty-${index}`} />
@@ -237,24 +243,21 @@ const CalendarApp = () => {
             {[...Array(daysInMonth).keys()].map((day) => (
               <span
                 key={day + 1}
-                className={`
-                  ${
-                    day + 1 === currentDate.getDate() &&
-                    currentMonth === currentDate.getMonth() &&
-                    currentYear === currentDate.getFullYear()
-                      ? "current-day"
-                      : ""
-                  }
-                  ${
-                    selectedDate &&
-                    isSameDay(
-                      new Date(currentYear, currentMonth, day + 1),
-                      selectedDate
-                    )
-                      ? "selected-day"
-                      : ""
-                  }
-                `}
+                className={`${
+                  day + 1 === currentDate.getDate() &&
+                  currentMonth === currentDate.getMonth() &&
+                  currentYear === currentDate.getFullYear()
+                    ? "current-day"
+                    : ""
+                } ${
+                  selectedDate &&
+                  isSameDay(
+                    new Date(currentYear, currentMonth, day + 1),
+                    selectedDate
+                  )
+                    ? "selected-day"
+                    : ""
+                }`}
                 onClick={() => handleDayClick(day + 1)}
               >
                 {day + 1}
@@ -272,67 +275,75 @@ const CalendarApp = () => {
                   monthsOfYear[selectedDate.getMonth()]
                 } ${selectedDate.getFullYear()}`}
               </h2>
-              {eventsForSelectedDay.length > 0 ? (
-                eventsForSelectedDay.map((event) => (
-                  <div className="event" key={event.id}>
-                    <div className="event-date-wrapper">
-                      <div className="event-time">
-                        {event.isAllDay ? "Tutto il giorno" : event.time}
-                      </div>
-                      {event.room && (
-                        <div className="event-room">{event.room}</div>
-                      )}
-                    </div>
-                    <div className="event-text">{event.text}</div>
-                    <div className="event-buttons">
-                      <i
-                        className="bx bxs-edit-alt"
-                        onClick={() => handleEditEvent(event)}
-                      ></i>
-                      <i
-                        className="fa-solid fa-square-xmark"
-                        onClick={() => handleDeleteEvent(event.id)}
-                      ></i>
-                    </div>
+
+              {rooms.map((room) => {
+                const roomEvents = eventsForSelectedDay
+                  .filter((e) => e.room === room)
+                  .sort((a, b) => (a.time > b.time ? 1 : -1));
+
+                return (
+                  <div key={room} className="room-section">
+                    <h3
+                      className="room-title"
+                      style={{ color: getRoomColor(room) }}
+                    >
+                      {room}:
+                    </h3>
+
+                    {roomEvents.length > 0 ? (
+                      roomEvents.map((event) => (
+                        <div
+                          className={`event ${
+                            event.room === "Stanza Fede"
+                              ? "fede"
+                              : event.room === "Stanza trattamenti"
+                              ? "trattamenti"
+                              : event.room === "Palestra"
+                              ? "palestra"
+                              : ""
+                          }`}
+                          key={event.id}
+                        >
+                          <div className="event-date-wrapper">
+                            <div className="event-time">
+                              {event.isAllDay ? "Tutto il giorno" : event.time}
+                            </div>
+                          </div>
+                          <div className="event-text">{event.text}</div>
+                          <div className="event-buttons">
+                            <i
+                              className="bx bxs-edit-alt"
+                              onClick={() => handleEditEvent(event)}
+                            ></i>
+                            <i
+                              className="fa-solid fa-square-xmark"
+                              onClick={() => handleDeleteEvent(event.id)}
+                            ></i>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="default-message">
+                        Nessun evento per questo giorno.
+                      </p>
+                    )}
                   </div>
-                ))
-              ) : (
-                <p className="default-message">
-                  Nessun evento per questo giorno.
-                </p>
-              )}
+                );
+              })}
+
               <button
                 className="event-popup-btn"
-                onClick={() => {
-                  const hasAllDayEvent = eventsForSelectedDay.some(
-                    (e) => e.isAllDay
-                  );
-
-                  if (hasAllDayEvent) {
-                    showCustomAlert(
-                      "Non puoi creare un evento in questo giorno (Esiste già un appuntamento tutto il giorno)."
-                    );
-                    return;
-                  }
-
-                  setShowEventPopup(true);
-                  setEditingEvent(null);
-                  setEventStartTime({ hours: "00", minutes: "00" });
-                  setEventEndTime({ hours: "00", minutes: "00" });
-                  setEventText("");
-                  setEventRoom("");
-                  setIsAllDay(false);
-                }}
+                onClick={() => setShowEventPopup(true)}
               >
                 Aggiungi Evento
               </button>
             </div>
           )}
 
-          {/* Popup per aggiungere/modificare evento */}
+          {/* Popup evento */}
           {showEventPopup && (
             <div className="event-popup">
-              {/* Input ORA INIZIO */}
+              {/* Input ora inizio */}
               <div className="time-input">
                 <div className="event-popup-time">DA</div>
                 <input
@@ -365,7 +376,7 @@ const CalendarApp = () => {
                 />
               </div>
 
-              {/* Input ORA FINE */}
+              {/* Input ora fine */}
               <div className="time-input">
                 <div className="event-popup-time">A</div>
                 <input
@@ -407,7 +418,7 @@ const CalendarApp = () => {
                     onChange={(e) => {
                       const checked = e.target.checked;
                       setIsAllDay(checked);
-                      if (checked) setEventRoom(""); // resetta stanza se tutto il giorno
+                      if (checked) setEventRoom("");
                     }}
                   />
                   <span className="slider round"></span>
@@ -415,7 +426,7 @@ const CalendarApp = () => {
                 <span className="all-day-label">Tutto il giorno</span>
               </div>
 
-              {/* Dropdown per la stanza */}
+              {/* Dropdown stanza */}
               {!isAllDay && (
                 <select
                   className="event-room-dropdown"
@@ -423,8 +434,8 @@ const CalendarApp = () => {
                   onChange={(e) => setEventRoom(e.target.value)}
                 >
                   <option value="">Scegli stanza</option>
-                  <option value="Stanza trattamenti">Stanza trattamenti</option>
                   <option value="Stanza Fede">Stanza Fede</option>
+                  <option value="Stanza trattamenti">Stanza trattamenti</option>
                   <option value="Palestra">Palestra</option>
                 </select>
               )}
@@ -433,14 +444,14 @@ const CalendarApp = () => {
                 placeholder="Descrizione Evento (Max 60 caratteri)"
                 value={eventText}
                 onChange={(e) => {
-                  if (e.target.value.length <= 60) {
-                    setEventText(e.target.value);
-                  }
+                  if (e.target.value.length <= 60) setEventText(e.target.value);
                 }}
               ></textarea>
+
               <button className="event-popup-btn" onClick={handleEventSubmit}>
                 {editingEvent ? "Aggiorna Evento" : "Aggiungi Evento"}
               </button>
+
               <button
                 className="close-event-popup"
                 onClick={() => setShowEventPopup(false)}
