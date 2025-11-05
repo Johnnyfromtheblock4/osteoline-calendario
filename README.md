@@ -4,6 +4,8 @@ Calendario personalizzato per Osteoline.
 
 FUNZIONI:
 
+- Colori diversi per appuntamenti per stanza
+- Appuntamenti in ordine di orario e di stanza
 - Calendario che faccia un conteggio orario ad ogni mese per utente
 - Notifiche badge
 - Popup

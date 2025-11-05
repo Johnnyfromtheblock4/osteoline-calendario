@@ -27,9 +27,10 @@ const CalendarApp = () => {
   const [events, setEvents] = useState([]);
   const [eventTime, setEventTime] = useState({ hours: "00", minutes: "00" });
   const [eventText, setEventText] = useState("");
-  const [eventRoom, setEventRoom] = useState(""); // nuova variabile per la stanza
-  const [isAllDay, setIsAllDay] = useState(false); // nuovo stato per switch "Tutto il giorno"
+  const [eventRoom, setEventRoom] = useState(""); // variabile per la stanza
+  const [isAllDay, setIsAllDay] = useState(false); // stato per switch "Tutto il giorno"
   const [editingEvent, setEditingEvent] = useState(null);
+  const [alertMessage, setAlertMessage] = useState(""); // stato per popup
 
   // funzione che determina il numero di giorni in un mese
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -81,7 +82,7 @@ const CalendarApp = () => {
   const handleEventSubmit = () => {
     // Se NON è "tutto il giorno", la stanza è obbligatoria
     if (!isAllDay && !eventRoom) {
-      alert("Seleziona una stanza prima di salvare l'evento.");
+      showCustomAlert("Seleziona una stanza prima di salvare l'evento.");
       return;
     }
 
@@ -95,7 +96,9 @@ const CalendarApp = () => {
           e.id !== (editingEvent?.id || null)
       )
     ) {
-      alert("Esiste già un evento 'Tutto il giorno' in questa data.");
+      showCustomAlert(
+        "Non puoi creare un evento in questo giorno (Esiste già un appuntamento tutto il giorno)."
+      );
       return;
     }
 
@@ -175,6 +178,11 @@ const CalendarApp = () => {
   const eventsForSelectedDay = events.filter((event) =>
     selectedDate ? isSameDay(new Date(event.date), selectedDate) : false
   );
+
+  // funzione per mostrare il popup personalizzato
+  const showCustomAlert = (message) => {
+    setAlertMessage(message);
+  };
 
   return (
     <>
@@ -270,8 +278,8 @@ const CalendarApp = () => {
                   );
 
                   if (hasAllDayEvent) {
-                    alert(
-                      "In questo giorno c'è già un evento 'Tutto il giorno'."
+                    showCustomAlert(
+                      "Non puoi creare un evento in questo giorno (Esiste già un appuntamento tutto il giorno)."
                     );
                     return;
                   }
@@ -364,6 +372,20 @@ const CalendarApp = () => {
             </div>
           )}
         </div>
+        {/* Popup personalizzato */}
+        {alertMessage && (
+          <div className="custom-alert-overlay">
+            <div className="custom-alert">
+              <p>{alertMessage}</p>
+              <button
+                className="custom-alert-close"
+                onClick={() => setAlertMessage("")}
+              >
+                Chiudi
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
