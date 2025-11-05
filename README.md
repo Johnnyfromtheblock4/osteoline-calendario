@@ -5,9 +5,7 @@ Calendario personalizzato per Osteoline.
 FUNZIONI:
 
 - Calendario che faccia un conteggio orario ad ogni mese per utente
-- Non permette di cancellare appuntamenti se mancano 24 ore.
 - Notifiche badge
-- Badge tutto il giorno
+- Popup
 - Etichetta utente (quando prendo appuntamento)
-- Totale ore appuntamenti mensile, annuale
-- Aggiungi nota all'appuntamento
+- Possibilità di vedere giorni passati ma non modificare ne cancellare gli eventi. Non permette di cancellare appuntamenti se mancano 24 ore.
