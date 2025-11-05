@@ -42,7 +42,7 @@ const CalendarApp = () => {
   const [editingEvent, setEditingEvent] = useState(null);
   const [alertMessage, setAlertMessage] = useState("");
 
-  // ✅ Mostra automaticamente gli appuntamenti del giorno corrente al primo caricamento
+  // Mostra automaticamente gli appuntamenti del giorno corrente al primo caricamento
   useEffect(() => {
     setSelectedDate(currentDate);
     setShowDayDetails(true);
@@ -79,15 +79,41 @@ const CalendarApp = () => {
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate();
 
+  // funzione per verificare se una data è passata (prima di oggi)
+  const isPastDate = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    return compareDate < today;
+  };
+
+  // funzione per bloccare cancellazione se mancano meno di 24 ore
+  const isEventLocked = (event) => {
+    if (event.isAllDay) {
+      const eventDate = new Date(event.date);
+      const now = new Date();
+      return eventDate - now < 24 * 60 * 60 * 1000 && eventDate > now;
+    }
+
+    if (!event.time.includes(" - ")) return false;
+
+    const [start] = event.time.split(" - ");
+    const [h, m] = start.split(":").map(Number);
+    const eventDateTime = new Date(event.date);
+    eventDateTime.setHours(h, m, 0, 0);
+
+    const diff = eventDateTime - new Date();
+    return diff < 24 * 60 * 60 * 1000 && diff > 0;
+  };
+
+  // funzione per selezionare il giorno dell'evento
   // funzione per selezionare il giorno dell'evento
   const handleDayClick = (day) => {
     const clickedDate = new Date(currentYear, currentMonth, day);
-    const today = new Date();
-    if (clickedDate >= today || isSameDay(clickedDate, today)) {
-      setSelectedDate(clickedDate);
-      setShowDayDetails(true);
-      setShowEventPopup(false);
-    }
+    setSelectedDate(clickedDate);
+    setShowDayDetails(true);
+    setShowEventPopup(false);
   };
 
   // funzione per mostrare il popup personalizzato
@@ -214,6 +240,12 @@ const CalendarApp = () => {
 
   // funzione per edit evento
   const handleEditEvent = (event) => {
+    // blocca modifica per date passate o eventi nelle prossime 24 ore
+    if (isPastDate(event.date) || isEventLocked(event)) {
+      showCustomAlert("Non puoi modificare questo evento.");
+      return;
+    }
+
     setSelectedDate(new Date(event.date));
     if (event.time.includes(" - ")) {
       const [start, end] = event.time.split(" - ");
@@ -237,8 +269,19 @@ const CalendarApp = () => {
   };
 
   // funzione per eliminare evento
-  const handleDeleteEvent = (eventId) =>
+  const handleDeleteEvent = (eventId) => {
+    const eventToDelete = events.find((e) => e.id === eventId);
+
+    // blocca eliminazione se giorno passato o evento entro 24 ore
+    if (isPastDate(eventToDelete.date) || isEventLocked(eventToDelete)) {
+      showCustomAlert(
+        "Non puoi cancellare un evento entro 24 ore o di un giorno passato."
+      );
+      return;
+    }
+
     setEvents(events.filter((event) => event.id !== eventId));
+  };
 
   // eventi del giorno selezionato
   const eventsForSelectedDay = events.filter((event) =>
@@ -378,6 +421,12 @@ const CalendarApp = () => {
               <button
                 className="event-popup-btn"
                 onClick={() => setShowEventPopup(true)}
+                disabled={isPastDate(selectedDate)}
+                style={
+                  isPastDate(selectedDate)
+                    ? { opacity: 0.5, cursor: "not-allowed" }
+                    : {}
+                }
               >
                 Aggiungi Evento
               </button>
